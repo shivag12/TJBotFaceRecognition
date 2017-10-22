@@ -1,84 +1,56 @@
+var Gpio = require('onoff').Gpio,
+button = new Gpio(4, 'in', 'both');
+const PiCamera = require("pi-camera");
+const {detectFaceAndIdentify} = require("./FacialRecognition");
 const faceRecognitionApi = require("./Services/Face/face");
-const dbFunctions = require("./Database/dbfunctions");
-const {sendSMS} = require("./Services/SMS/sms");
-const {sendEmail} = require("./Services/Email/sendemail");
 const db = require("./Database/db.json");
-
-const emailOptions = {
-    to : "gshiva5@live.com",
-    from : "gshiva3m@gmail.com",    
-    subject : "TJBot Alert : Unidentified person"
-}
+var flag = true;
+var cameraProps = null;
 
 var options = {
     subscriptionKey : db.subscriptionKey.key1,
-    //url : "./photos/TestPhotos/RaspiCamera_Shiva.jpg",
-    personGroupId : "tjbotpersongroup",
-    //personId : "7a001cb2-77b6-4813-b39a-527f2dfac9fb",
-    //name : "shiva",
-    //userData : "Faces related to shiva"
+    personGroupId : "tjbotpersongroup"
 }
-/*
-Detect the face in the image and identify the person
-*/
-function detectFaceAndIdentify(options){
-    faceRecognitionApi.detectFace(options)
-    .then((res)=>{
-        if(res.length !== 0){
-            options.faceIds = res[0].faceId;        
-            return faceRecognitionApi.identifyFace(options); 
-        } else { 
-            //Text to Speech -- Message            
-            console.log("Cannot recognize the face..");
-            return null;
-        }        
-    }).then((res)=>{ 
-        if(res !== null){
-            if(res[0].candidates.length !== 0){
-                dbFunctions.dbFindName(res[0].candidates[0].personId,(name)=>{
-                    //Text to Speech -- Message -- Led Green and ArmMovement (Up)
-                    console.log(`Recognized person name : ${name}`);
-                })
-            } else {
-                var message = "An unidentified person detected. Login to Admin console to authorize it";
-                sendNotifications(message);
-            }
+
+button.watch(function(err, value) {
+    //Capturing the image from the Raspicamera. 
+    cameraProps = {
+        mode: 'photo',
+        output: `../photos/CapturedPhotos/${new Date().getTime()}.jpg`,
+        width: 640,
+        height: 480,
+        nopreview: false,
+        timeout : 1000
+    }
+    const Pic = new PiCamera(cameraProps);
+
+    if(value === 1) {
+        if(flag){
+            flag = false;  
+            Pic.snap().then((res)=>{                
+                console.log("Picture Captured");
+                FacialRecognition();
+                flag = true;
+            }).catch((err)=>{
+                console.log(err);
+            })
+        } else {
+            console.log("Please Wait..!!, Facial Recognition process is still running")
         }
-    })
-    .catch((err)=>{
+    }
+});
+
+
+function FacialRecognition(){
+    faceRecognitionApi.personGroupTrainingStatus(options)
+    .then((msg)=>{
+        if(msg.status === "succeeded"){
+            detectFaceAndIdentify({url : cameraProps.output});
+        } else {
+            console.log("Person Group is not trained");
+        }
+    }).catch((err)=>{
         console.log(err);
     })
 }
-
-/*
-Send notifications - SMS , Email. 
-*/
-function sendNotifications(msg){
-    sendSMS({
-        body : msg
-    }).then(()=>{
-        console.log("SMS Send successfully..");
-    }).catch((err)=>{
-        throw new Error(err);
-    })
-    emailOptions.text = msg;
-    sendEmail(emailOptions).then((msg)=>{
-        console.log("Email Sent successfully..!");
-    }).catch((err)=>{
-        throw new Error(err);
-    })
-    console.log("Sorry couldn't identify the person");
-}
-
-
-module.exports = {
-    detectFaceAndIdentify
-}
-
-
-
-
-
-
-
 

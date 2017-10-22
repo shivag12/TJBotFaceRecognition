@@ -1,9 +1,18 @@
-const faceRecognition = require("./Services/Face/face");
 
+const {detectFaceAndIdentify} = require("./Index");
+const faceRecognitionApi = require("./Services/Face/face");
 
-faceRecognition.personGroupTrainingStatus({
-    subscriptionKey : "7f0e6b0318d4435881cf7852d1ff4315",
-    personGroupId : "tjbotpersongroup"
-}).then((msg)=>{
-    console.log(msg.status);
-})
+function FacialRecognition(){
+    faceRecognitionApi.personGroupTrainingStatus()
+    .then((msg)=>{        
+        if(msg.status === "succeeded"){
+            detectFaceAndIdentify("./photos/TestPhotos/identify_rajan.jpg");
+        } else {
+            console.log("Person Group is not trained");
+        }
+    }).catch((err)=>{
+        console.log(err);
+    })
+}
+
+FacialRecognition();
