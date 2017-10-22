@@ -1,0 +1,49 @@
+{
+  "subscriptionKey": {
+    "key1": "7f0e6b0318d4435881cf7852d1ff4315",
+    "key2": "5726665aff4e4579a20e7109b1f4e297"
+  },
+  "personGroup": [
+    {
+      "personGroupId": "tjbotpersongroup",
+      "name": "D_TJBotUserGroup",
+      "userData": "user-provided data attached to the person group"
+    }
+  ],
+  "persons": [
+    {
+      "name": "shiva",
+      "personId": "7a001cb2-77b6-4813-b39a-527f2dfac9fb",
+      "personGroupId": "tjbotpersongroup",
+      "persistedFace": [
+        {
+          "faceId": "21a4e823-4473-41af-bc55-8079fcc4fea1",
+          "fileName": "shiva2.jpg"
+        },
+        {
+          "faceId": "d5ce6d7d-e6c6-4a27-84ee-7ecbd4fa9e17",
+          "fileName": "shiva1.jpg"
+        }
+      ]
+    },
+    {
+      "name": "sai",
+      "personId": "a7955fbc-7635-4396-a9e5-26810e47aa41",
+      "personGroupId": "tjbotpersongroup",
+      "persistedFace": [
+        {
+          "faceId": "31205cd4-a237-4bdb-b2c8-7b4efea5fa0a",
+          "fileName": "sai.jpg"
+        }
+      ]
+    },
+    {
+      "name": "thanusri",
+      "personId": "09d969bd-3f13-4b37-bbf0-bf83da75f7e9",
+      "personGroupId": "tjbotpersongroup",
+      "persistedFace": [
+        "3ac31a6f-1e3a-41d5-a1f8-50e49c8c043d"
+      ]
+    }
+  ]
+}
