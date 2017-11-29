@@ -1,5 +1,5 @@
 var Gpio = require('onoff').Gpio,
-button = new Gpio(4, 'in', 'both');
+button = new Gpio(17, 'in', 'both');
 const PiCamera = require("pi-camera");
 const {detectFaceAndIdentify} = require("./FacialRecognition");
 const faceRecognitionApi = require("./Services/Face/face");
@@ -16,7 +16,7 @@ button.watch(function(err, value) {
     //Capturing the image from the Raspicamera. 
     cameraProps = {
         mode: 'photo',
-        output: `../photos/CapturedPhotos/${new Date().getTime()}.jpg`,
+        output: `${__dirname}/photos/CapturedPhotos/${new Date().getTime()}.jpg`,
         width: 640,
         height: 480,
         nopreview: false,
@@ -28,8 +28,9 @@ button.watch(function(err, value) {
         if(flag){
             flag = false;  
             Pic.snap().then((res)=>{                
-                console.log("Picture Captured");
-                FacialRecognition();
+                console.log("Picture Captured");		
+                //FacialRecognition();
+		detectFaceAndIdentify(cameraProps.output);
                 flag = true;
             }).catch((err)=>{
                 console.log(err);
@@ -45,6 +46,7 @@ function FacialRecognition(){
     faceRecognitionApi.personGroupTrainingStatus(options)
     .then((msg)=>{
         if(msg.status === "succeeded"){
+	    console.log(cameraProps.output);
             detectFaceAndIdentify({url : cameraProps.output});
         } else {
             console.log("Person Group is not trained");
